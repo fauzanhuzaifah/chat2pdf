@@ -92,22 +92,26 @@ jobs:
           Write-Host "webviewInstallMode = $mode"
           if ($mode -ne 'downloadBootstrapper') { Write-Error "Mode WebView2 bukan downloadBootstrapper: $mode" }
 
-      - name: Install dan Verifikasi NSIS
+       - name: Install dan Verifikasi NSIS
         run: |
-          # 1. Instal NSIS via Chocolatey
           choco install nsis -y --no-progress
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Chocolatey gagal menginstal NSIS."
-            exit 1
-          }
-
-          # 2. Cari makensis.exe di lokasi yang mungkin
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          
           $candidates = @(
             "${env:ProgramFiles(x86)}\NSIS\makensis.exe",
             "$env:ProgramFiles\NSIS\makensis.exe",
             "C:\ProgramData\chocolatey\bin\makensis.exe"
           )
-          $makensis = $candidates | Where-Object { Test-Path # Fase 5D - Build installer NSIS + uji E2E penuh di windows-latest
+          $makensis = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          
+          if (-not $makensis) {
+            Write-Error "NSIS tidak ditemukan"
+            exit 1
+          }
+          
+          $nsisDir = Split-Path $makensis -Parent
+          $nsisDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          & $makensis /VERSION
 name: build-windows
 
 on:
