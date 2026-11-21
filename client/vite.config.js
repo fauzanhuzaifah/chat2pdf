@@ -1,26 +1,22 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { fileURLToPath } from 'node:url'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import { fileURLToPath, URL } from 'node:url';
 
-export default export default defineConfig({
+export default defineConfig({
+  plugins: [vue()],
   resolve: {
     alias: {
+      '@shared': fileURLToPath(new URL('../shared', import.meta.url)),
       marked: fileURLToPath(new URL('./node_modules/marked', import.meta.url)),
       katex: fileURLToPath(new URL('./node_modules/katex', import.meta.url)),
     },
   },
-});
   server: {
-    port: 3000,
     fs: {
-      // Izinkan dev server membaca modul bersama di luar root client/
-      allow: ['..']
+      allow: ['..'],
     },
     proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true
-      }
-    }
-  }
-})
+      '/api': 'http://localhost:5000',
+    },
+  },
+});
