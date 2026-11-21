@@ -67,7 +67,7 @@ jobs:
           Copy-Item $engineSource.FullName -Destination "../src-tauri\resources\prisma\query_engine.dll.node" -Force
           Write-Host "Copied $($engineSource.Name) -> query_engine.dll.node"
           
-          npx --yes pkg@6.26.0 --fallback-to-source --target node24-win-x64 --output ../src-tauri/binaries/express-server-x86_64-pc-windows-msvc.exe .
+          npx --yes @yao-pkg/pkg@6.19.0 --target node24-win-x64 --output ../src-tauri/binaries/express-server-x86_64-pc-windows-msvc.exe .
           Get-Item ../src-tauri/binaries/express-server-x86_64-pc-windows-msvc.exe | Select-Object Name, Length
 
       - name: Build client + sinkron ke resources/client-dist
