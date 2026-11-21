@@ -2,14 +2,14 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath } from 'node:url'
 
-export default defineConfig({
-  plugins: [vue()],
+export default export default defineConfig({
   resolve: {
     alias: {
-      // Modul render bersama client+server (satu pipeline Markdown+KaTeX)
-      '@shared': fileURLToPath(new URL('../shared', import.meta.url))
-    }
+      marked: fileURLToPath(new URL('./node_modules/marked', import.meta.url)),
+      katex: fileURLToPath(new URL('./node_modules/katex', import.meta.url)),
+    },
   },
+});
   server: {
     port: 3000,
     fs: {
