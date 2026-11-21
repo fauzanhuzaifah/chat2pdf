@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Environment files
+.env
+.env.*
+!.env.example
+server/.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Prisma
+prisma/*.db
+
+# Local artifacts & sensitive files (never commit / publish)
+server/prisma/dev.db
+server/prisma/dev.db-journal
+client/dist/
+node_modules/
+server/node_modules/
+client/node_modules/
+license-generator/
+reset-license.html
+test-hmac.html
+# E2E artifacts (CI)
+e2e/artifacts/
+e2e/package.json
+
+# Sidecar Express Windows: 127 MB > batas file GitHub (100 MB) — dibangun di CI (pkg)
+# atau di-stage manual untuk build lokal (server/dist → src-tauri/binaries)
+src-tauri/binaries/express-server-*.exe

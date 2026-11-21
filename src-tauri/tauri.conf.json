@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Chat to PDF",
+  "version": "1.0.0",
+  "identifier": "com.chat2pdf.desktop",
+  "build": {
+    "frontendDist": "../client/dist"
+  },
+  "app": {
+    "windows": [],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      }
+    },
+    "externalBin": [
+      "binaries/express-server",
+      "binaries/typst"
+    ],
+    "resources": [
+      "resources/typst-assets/*",
+      "resources/typst-assets/fonts/*",
+      "resources/typst-assets/packages/**/*",
+      "resources/client-dist/**/*",
+      "resources/prisma/*",
+      "resources/.env"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/icon.ico"
+    ]
+  }
+}

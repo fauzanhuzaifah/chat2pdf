@@ -1,0 +1,22 @@
+{
+  "identifier": "default",
+  "description": "Izin default UI: panggil sidecar express-server & typst (shell) + API inti Tauri",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        { "name": "binaries/express-server", "sidecar": true },
+        { "name": "binaries/typst", "sidecar": true }
+      ]
+    },
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        { "name": "binaries/express-server", "sidecar": true },
+        { "name": "binaries/typst", "sidecar": true }
+      ]
+    }
+  ]
+}

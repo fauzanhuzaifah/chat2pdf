@@ -1,0 +1,10 @@
+{
+  "name": "chat2pdf-workspace",
+  "private": true,
+  "type": "module",
+  "description": "Host dependensi bersama untuk shared/render.js. Versi dipin exact agar identik dengan server dan client (^0.16.9/^11.1.0 keduanya ter-resolve ke versi ini).",
+  "dependencies": {
+    "katex": "0.16.47",
+    "marked": "11.2.0"
+  }
+}

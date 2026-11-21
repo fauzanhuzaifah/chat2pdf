@@ -1,0 +1,33 @@
+{
+  "name": "chat-to-pdf-server",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": "src/app.js",
+  "scripts": {
+    "dev": "node --watch src/app.js",
+    "start": "node src/app.js",
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio",
+    "build:binary:linux": "pkg --fallback-to-source --target node24-linux-x64 --output dist/express-server .",
+    "build:binary:win": "pkg --fallback-to-source --target node24-win-x64 --output dist/express-server ."
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^18.0.10",
+    "express": "^4.18.2",
+    "katex": "^0.16.9",
+    "marked": "^11.1.0"
+  },
+  "devDependencies": {
+    "@yao-pkg/pkg": "^6.26.0",
+    "prisma": "^5.22.0"
+  },
+  "pkg": {
+    "assets": [
+      "node_modules/.prisma/client/**/*",
+      "prisma/schema.prisma"
+    ],
+    "outputPath": "dist"
+  }
+}
