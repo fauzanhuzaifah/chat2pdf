@@ -1,4 +1,4 @@
-# Fase 5D — Build installer NSIS + uji E2E penuh di windows-latest (tanpa Windows lokal).
+# Fase 5D  EBuild installer NSIS + uji E2E penuh di windows-latest (tanpa Windows lokal).
 # Prasyarat repo: GitHub Secret `LICENSE_SECRET` (jangan pernah commit nilai secret).
 # Bukti di-upload sebagai artefak: installer, screenshot UI, PDF, tasklist, e2e-summary.json.
 name: build-windows
@@ -46,28 +46,36 @@ jobs:
           workspaces: src-tauri -> target
 
       # ===== Persiapan (BUILD-WINDOWS.md) =====
-      - name: Suntik .env dari Secrets (runtime CI — tidak di-commit)
+      - name: Suntik .env dari Secrets (runtime CI  Etidak di-commit)
         run: |
           if (-not $env:LICENSE_SECRET) {
-            Write-Host "::warning::Secret LICENSE_SECRET belum di-set — uji license valid-key dilewati (tanpa key tetap 400)"
+            Write-Host "::warning::Secret LICENSE_SECRET belum di-set  Euji license valid-key dilewati (tanpa key tetap 400)"
           }
           # CATATAN: hanya LICENSE_SECRET. DATABASE_URL sengaja tidak di-set agar
           # ensureDatabaseUrl() meresolusi resources/prisma/dev.db di path ter-instal.
           "LICENSE_SECRET=$env:LICENSE_SECRET" | Set-Content -NoNewline -Encoding utf8 src-tauri/resources/.env
           $keys = (Get-Content src-tauri/resources/.env | ForEach-Object { ($_ -split '=', 2)[0] }) -join ','
-          Write-Host "resources/.env ditulis (keys: $keys) — nilai tidak dicetak"
+          Write-Host "resources/.env ditulis (keys: $keys)  Enilai tidak dicetak"
 
       - name: Engine Prisma Windows + bangun sidecar Express (pkg)
         run: |
           cd server
           npm ci --no-audit --no-fund
           npx prisma generate
-          $engine = Get-ChildItem node_modules/.prisma/client -Filter 'query_engine.dll.node' -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $engine) { $engine = Get-ChildItem node_modules/.prisma/client -Filter 'query-engine.dll.node' -ErrorAction SilentlyContinue | Select-Object -First 1 }
-          if (-not $engine) { Write-Error 'Engine Prisma Windows (query_engine.dll.node) tidak ditemukan' }
-          Copy-Item $engine.FullName ../src-tauri/resources/prisma/ -Force
-          Write-Host "Engine disalin: $($engine.Name)"
-          # Sidecar Express dibangun di CI — file 127 MB melebihi batas file GitHub (100 MB),
+          
+          # Cari query engine Windows yang baru di-generate
+$engineSource = Get-ChildItem -Path "server\node_modules\@prisma\engines" -Filter "*query_engine*windows*.node" -ErrorAction SilentlyContinue | Select-Object -First 1
+if (-not $engineSource) {
+  $engineSource = Get-ChildItem -Path "server\node_modules\.prisma\client" -Filter "*query_engine*windows*.node" -ErrorAction SilentlyContinue | Select-Object -First 1
+}
+if (-not $engineSource) {
+  Write-Error "Engine Prisma Windows tidak ditemukan di node_modules"
+  exit 1
+}
+# Salin ke resources dengan nama yang diharapkan resolver
+Copy-Item $engineSource.FullName -Destination "src-tauri\resources\prisma\query_engine.dll.node" -Force
+Write-Host "Copied $($engineSource.Name) -> query_engine.dll.node"
+                    # Sidecar Express dibangun di CI  Efile 127 MB melebihi batas file GitHub (100 MB),
           # sehingga tidak di-commit di branch baseline/working-copy. Prosedur identik dengan
           # build lokal di BUILD-WINDOWS.md (sudah terverifikasi di simulasi Linux Fase 5D).
           npx --yes pkg@6.26.0 --fallback-to-source --target node24-win-x64 --output ../src-tauri/binaries/express-server-x86_64-pc-windows-msvc.exe .
@@ -85,7 +93,7 @@ jobs:
         run: |
           $c = Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json
           $mode = $c.bundle.windows.webviewInstallMode.type
-          Write-Host "webviewInstallMode = $mode (offlineInstaller = +127 MB — tidak dipakai)"
+          Write-Host "webviewInstallMode = $mode (offlineInstaller = +127 MB  Etidak dipakai)"
           if ($mode -ne 'downloadBootstrapper') { Write-Error "Mode WebView2 bukan downloadBootstrapper: $mode" }
 
       # ===== Build =====
@@ -97,7 +105,7 @@ jobs:
         id: size
         run: |
           $nsis = Get-ChildItem src-tauri/target/release/bundle/nsis/*-setup.exe | Select-Object -First 1
-          if (-not $nsis) { Write-Error 'Installer NSIS tidak ditemukan — build gagal (cek log langkah tauri build)' }
+          if (-not $nsis) { Write-Error 'Installer NSIS tidak ditemukan  Ebuild gagal (cek log langkah tauri build)' }
           $mb = [math]::Round($nsis.Length / 1MB, 2)
           Write-Host "Installer: $($nsis.Name) = $mb MB"
           "installer_path=$($nsis.FullName)" >> $env:GITHUB_OUTPUT
@@ -110,10 +118,10 @@ jobs:
           if-no-files-found: error
 
       # ===== E2E =====
-      - name: E2E — install silent, UI, PDF, license, lifecycle, metrik
+      - name: E2E  Einstall silent, UI, PDF, license, lifecycle, metrik
         run: "& ./e2e/run-e2e.ps1 -InstallerPath '${{ steps.size.outputs.installer_path }}'"
 
-      - name: TOC — asser teks "Daftar Isi" di PDF (pdfjs)
+      - name: TOC  Easser teks "Daftar Isi" di PDF (pdfjs)
         run: |
           cd e2e
           npm init -y | Out-Null
