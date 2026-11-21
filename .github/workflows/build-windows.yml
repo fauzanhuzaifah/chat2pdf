@@ -57,27 +57,26 @@ jobs:
           $keys = (Get-Content src-tauri/resources/.env | ForEach-Object { ($_ -split '=', 2)[0] }) -join ','
           Write-Host "resources/.env ditulis (keys: $keys)  Enilai tidak dicetak"
 
-      - name: Engine Prisma Windows + bangun sidecar Express (pkg)
+       - name: Engine Prisma Windows + bangun sidecar Express (pkg)
         run: |
           cd server
           npm ci --no-audit --no-fund
           npx prisma generate
           
           # Cari query engine Windows yang baru di-generate
-$engineSource = Get-ChildItem -Path "server\node_modules\@prisma\engines" -Filter "*query_engine*windows*.node" -ErrorAction SilentlyContinue | Select-Object -First 1
-if (-not $engineSource) {
-  $engineSource = Get-ChildItem -Path "server\node_modules\.prisma\client" -Filter "*query_engine*windows*.node" -ErrorAction SilentlyContinue | Select-Object -First 1
-}
-if (-not $engineSource) {
-  Write-Error "Engine Prisma Windows tidak ditemukan di node_modules"
-  exit 1
-}
-# Salin ke resources dengan nama yang diharapkan resolver
-Copy-Item $engineSource.FullName -Destination "src-tauri\resources\prisma\query_engine.dll.node" -Force
-Write-Host "Copied $($engineSource.Name) -> query_engine.dll.node"
-                    # Sidecar Express dibangun di CI  Efile 127 MB melebihi batas file GitHub (100 MB),
-          # sehingga tidak di-commit di branch baseline/working-copy. Prosedur identik dengan
-          # build lokal di BUILD-WINDOWS.md (sudah terverifikasi di simulasi Linux Fase 5D).
+          $engineSource = Get-ChildItem -Path "node_modules\@prisma\engines" -Filter "*query_engine*windows*.node" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $engineSource) {
+            $engineSource = Get-ChildItem -Path "node_modules\.prisma\client" -Filter "*query_engine*windows*.node" -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
+          if (-not $engineSource) {
+            Write-Error "Engine Prisma Windows tidak ditemukan di node_modules"
+            exit 1
+          }
+          # Salin ke resources dengan nama yang diharapkan resolver
+          Copy-Item $engineSource.FullName -Destination "../src-tauri\resources\prisma\query_engine.dll.node" -Force
+          Write-Host "Copied $($engineSource.Name) -> query_engine.dll.node"
+          
+          # Sidecar Express dibangun di CI
           npx --yes pkg@6.26.0 --fallback-to-source --target node24-win-x64 --output ../src-tauri/binaries/express-server-x86_64-pc-windows-msvc.exe .
           Get-Item ../src-tauri/binaries/express-server-x86_64-pc-windows-msvc.exe | Select-Object Name, Length
 
