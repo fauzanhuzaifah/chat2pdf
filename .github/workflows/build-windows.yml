@@ -136,7 +136,7 @@ jobs:
             Write-Host "WebView2 ditemukan di: $webview2Path"
             Get-ChildItem $webview2Path | Select-Object Name
           } else {
-            Write-Host "WebView2 TIDAK ditemukan di path standar. Mencoba registry..."
+            Write-Host "WebView2 TIDAK ditemukan. Mencoba registry..."
             Get-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}" -ErrorAction SilentlyContinue | Select-Object pv
           }
 
@@ -146,7 +146,6 @@ jobs:
           if (-not $nsis) { Write-Error 'Installer NSIS tidak ditemukan' }
           Write-Host "Installer: $($nsis.Name) = $([math]::Round($nsis.Length / 1MB, 2)) MB"
           & ./e2e/run-e2e.ps1 -InstallerPath $nsis.FullName
-
       - name: TOC - asser teks Daftar Isi di PDF (pdfjs)
         run: |
           cd e2e
