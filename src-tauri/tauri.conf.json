@@ -13,12 +13,10 @@
     }
   },
   "bundle": {
-    "active": true,
-    "targets": ["nsis"],
     "windows": {
       "webviewInstallMode": {
-		  "type": "embedBootstrapper"
-		}
+        "type": "embedBootstrapper"
+      }
     },
     "externalBin": [
       "binaries/express-server",
