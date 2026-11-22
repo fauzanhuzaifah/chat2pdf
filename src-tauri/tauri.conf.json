@@ -17,8 +17,8 @@
     "targets": ["nsis"],
     "windows": {
       "webviewInstallMode": {
-        "type": "downloadBootstrapper"
-      }
+		  "type": "embedBootstrapper"
+		}
     },
     "externalBin": [
       "binaries/express-server",

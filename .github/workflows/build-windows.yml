@@ -129,6 +129,16 @@ jobs:
           name: chat2pdf-setup
           path: src-tauri/target/**/release/bundle/nsis/*-setup.exe
           if-no-files-found: error
+            - name: Verifikasi WebView2 Runtime
+        run: |
+          $webview2Path = "C:\Program Files (x86)\Microsoft\EdgeWebView\Application"
+          if (Test-Path $webview2Path) {
+            Write-Host "WebView2 ditemukan di: $webview2Path"
+            Get-ChildItem $webview2Path | Select-Object Name
+          } else {
+            Write-Host "WebView2 TIDAK ditemukan di path standar. Mencoba registry..."
+            Get-ItemProperty -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}" -ErrorAction SilentlyContinue | Select-Object pv
+          }
 
       - name: E2E - install silent, UI, PDF, license, lifecycle, metrik
         run: |
