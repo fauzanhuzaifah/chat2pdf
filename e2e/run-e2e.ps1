@@ -56,6 +56,19 @@ $ready = $false
 for ($i = 0; $i -lt 600; $i++) {
   Start-Sleep -Milliseconds 100
   $app.Refresh()
+  if ($app.HasExited) {
+    Write-Host "=== APLIKASI CRASH (Exit Code: $($app.ExitCode)) ==="
+    $logPath = "$env:LOCALAPPDATA\Chat to PDF\logs"
+    if (Test-Path $logPath) {
+        Get-ChildItem -Path $logPath -Filter "*.log" | ForEach-Object {
+            Write-Host "=== ISI LOG: $($_.Name) ==="
+            Get-Content $_.FullName -Tail 50
+        }
+    } else {
+        Write-Host "Tidak ada folder logs. Memeriksa Windows Event Viewer..."
+        Get-WinEvent -FilterHashtable @{LogName='Application'; Level=2} -MaxEvents 5 | Format-List Message
+    }
+}
   if ($app.HasExited) { throw "app keluar prematur (code=$($app.ExitCode))" }
   if ($app.MainWindowHandle -ne 0) { $ready = $true; break }
 }
