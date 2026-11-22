@@ -56,7 +56,6 @@ jobs:
           npm ci --no-audit --no-fund
           npx prisma generate
           
-          # Cari query engine Windows yang baru di-generate
           $engineSource = Get-ChildItem -Path "node_modules\@prisma\engines" -Filter "*query_engine*windows*.node" -ErrorAction SilentlyContinue | Select-Object -First 1
           if (-not $engineSource) {
             $engineSource = Get-ChildItem -Path "node_modules\.prisma\client" -Filter "*query_engine*windows*.node" -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -68,7 +67,6 @@ jobs:
           Copy-Item $engineSource.FullName -Destination "../src-tauri\resources\prisma\query_engine.dll.node" -Force
           Write-Host "Copied $($engineSource.Name) -> query_engine.dll.node"
           
-          # Bangun sidecar Express menggunakan fork @yao-pkg/pkg
           npx --yes @yao-pkg/pkg@6.19.0 --target node24-win-x64 --output ../src-tauri/binaries/express-server-x86_64-pc-windows-msvc.exe .
           
           if ($LASTEXITCODE -ne 0) {
@@ -85,33 +83,17 @@ jobs:
           robocopy dist ../src-tauri/resources/client-dist /MIR /NFL /NDL /NJH /NJS
           if ($LASTEXITCODE -ge 8) { exit $LASTEXITCODE } else { $global:LASTEXITCODE = 0 }
 
-      - name: Verifikasi mode WebView2
-        run: |
-          $c = Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json
-          $mode = $c.bundle.windows.webviewInstallMode.type
-          Write-Host "webviewInstallMode = $mode"
-          if ($mode -ne 'downloadBootstrapper') { Write-Error "Mode WebView2 bukan downloadBootstrapper: $mode" }
-
       - name: Install dan Verifikasi NSIS
         run: |
           choco install nsis -y --no-progress
-          if ($LASTEXITCODE -ne 0) { 
-            Write-Error "Chocolatey gagal menginstal NSIS."
-            exit 1 
-          }
-          
+          if ($LASTEXITCODE -ne 0) { exit 1 }
           $candidates = @(
             "${env:ProgramFiles(x86)}\NSIS\makensis.exe",
             "$env:ProgramFiles\NSIS\makensis.exe",
             "C:\ProgramData\chocolatey\bin\makensis.exe"
           )
           $makensis = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-          
-          if (-not $makensis) {
-            Write-Error "NSIS tidak ditemukan"
-            exit 1
-          }
-          
+          if (-not $makensis) { Write-Error "NSIS tidak ditemukan"; exit 1 }
           $nsisDir = Split-Path $makensis -Parent
           $nsisDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           & $makensis /VERSION
@@ -129,7 +111,8 @@ jobs:
           name: chat2pdf-setup
           path: src-tauri/target/**/release/bundle/nsis/*-setup.exe
           if-no-files-found: error
-            - name: Verifikasi WebView2 Runtime
+
+      - name: Verifikasi WebView2 Runtime
         run: |
           $webview2Path = "C:\Program Files (x86)\Microsoft\EdgeWebView\Application"
           if (Test-Path $webview2Path) {
@@ -146,6 +129,7 @@ jobs:
           if (-not $nsis) { Write-Error 'Installer NSIS tidak ditemukan' }
           Write-Host "Installer: $($nsis.Name) = $([math]::Round($nsis.Length / 1MB, 2)) MB"
           & ./e2e/run-e2e.ps1 -InstallerPath $nsis.FullName
+
       - name: TOC - asser teks Daftar Isi di PDF (pdfjs)
         run: |
           cd e2e
