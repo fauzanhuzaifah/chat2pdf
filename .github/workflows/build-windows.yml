@@ -127,12 +127,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: chat2pdf-setup
-          path: src-tauri/target/release/bundle/nsis/*-setup.exe
+          path: src-tauri/target/**/release/bundle/nsis/*-setup.exe
           if-no-files-found: error
 
       - name: E2E - install silent, UI, PDF, license, lifecycle, metrik
         run: |
-          $nsis = Get-ChildItem src-tauri/target/release/bundle/nsis/*-setup.exe | Select-Object -First 1
+          $nsis = Get-ChildItem src-tauri/target/**/release/bundle/nsis/*-setup.exe | Select-Object -First 1
           if (-not $nsis) { Write-Error 'Installer NSIS tidak ditemukan' }
           Write-Host "Installer: $($nsis.Name) = $([math]::Round($nsis.Length / 1MB, 2)) MB"
           & ./e2e/run-e2e.ps1 -InstallerPath $nsis.FullName
